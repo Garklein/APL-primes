@@ -1,0 +1,80 @@
+﻿:Class PrimeSieve
+    :Field Private n
+    :Field Private bits
+
+    ⎕IO←0
+    :Field Shared Private sieveSizes←10*1+⍳10
+    :Field Shared Private sieveResults←4 25 168 1229 9592 78498 664579 5761455 50847534 455052511
+
+    ∇ NewPrimeSieve limit
+        :Implements Constructor
+        :Access Public
+        n←limit
+    ∇
+
+    ∇ r←runSieve
+        :Access Public
+        bits←runSieveDfn n
+        r←1
+    ∇
+    runSieveDfn←{
+        ⎕IO←0
+        n←⍵
+        factor←3
+        bits←n⍴0 1
+        q←⌈n*0.5
+        _←{
+            _←{
+                factor>50:bits[factor×factor↓⍳⌈n÷factor]←0
+                1⊣bits>←(n↑(factor*2)⍴1)<n⍴factor↑1
+            }0
+            factor⊢←2∘+⍣(bits⊃⍨⊣)factor
+            factor≤q:∇ 0
+            1
+        }0
+        bits
+    }
+
+    ∇ r←countPrimes
+        :Access Private
+        r←countPrimesDfn bits
+    ∇
+    countPrimesDfn←+/
+
+    ∇ r←validateResults
+        :Access Private
+        r←validateResultsDfn 0
+    ∇
+    validateResultsDfn←{
+        ⎕IO←0
+        resIndex←⍸n⍷sieveSizes
+        resIndex≡⍬:0
+        (countPrimesDfn bits)=sieveResults[resIndex]
+    }
+
+    ∇ printResults args
+        :Access Public
+        printResultsDfn args
+    ∇
+    printResultsDfn←{
+        ⎕IO←0
+        (showResults duration passes)←⍵
+        _←{
+            showResults:showResultsDfn duration passes
+            1
+        }0
+        ⍞←'garklein-dfn;' ⋄ ⍞←passes ⋄ ⍞←';' ⋄ ⍞←duration ⋄ ⍞←';' ⋄ ⍞←'1;'
+        ⍞←'algorithm=base,faithful=yes,bits=1'
+    }
+    showResultsDfn←{
+        ⎕IO←0
+        (duration passes)←⍵
+        ⎕←2,1↓⍸bits
+        ⍞←'Passes: ' ⋄ ⍞←passes ⋄ ⍞←', Time: ' ⋄ ⍞←duration
+        ⍞←', Avg: ' ⋄ ⍞←duration÷passes ⋄ ⍞←', Limit: ' ⋄ ⍞←n
+        ⍞←', Count: ' ⋄ ⍞←countPrimes ⋄ ⍞←', Valid: ' ⋄ ⍞←validateResults
+        ⍞←', Array type ID: ' ⋄ ⍞←181⌶bits
+        ⎕←''
+        1
+    }
+:EndClass

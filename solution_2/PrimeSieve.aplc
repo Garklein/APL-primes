@@ -1,0 +1,68 @@
+﻿:Class PrimeSieve
+    :Field Private n
+    :Field Public bits
+
+    ⎕IO←0
+    :Field Shared Private sieveSizes←10*1+⍳10
+    :Field Shared Private sieveResults←4 25 168 1229 9592 78498 664579 5761455 50847534 455052511
+
+    ∇ NewPrimeSieve limit
+        :Implements Constructor
+        :Access Public
+        n←limit
+    ∇  
+    
+    ∇ runSieve    
+        :Access Public
+        bits←computeSieve
+    ∇
+
+    ∇ bits←computeSieve;factor;q
+        :Access Private
+        ⎕IO←0
+        factor←3
+        bits←n⍴0 1
+        q←⌈n*0.5
+        :While factor ≤ q
+            :If ~bits[factor]
+                factor⊢←2∘+⍣(bits⊃⍨⊣)factor
+            :EndIf
+            :If factor > 50
+                bits[factor×factor↓⍳⌈n÷factor]←0
+            :Else
+                bits>←(n↑(factor*2)⍴1)<n⍴factor↑1
+            :EndIf
+            factor+←2
+        :EndWhile                      
+    ∇
+
+    ∇ r←countPrimes
+        :Access Private
+        r←+/bits
+    ∇
+
+    ∇ r←validateResults;resIndex
+        :Access Public
+        ⎕IO←0
+        resIndex←⍸n⍷sieveSizes
+        :If resIndex≡⍬
+            r←0
+        :Else
+        r←countPrimes=sieveResults[resIndex]
+        :EndIf
+    ∇
+
+    ∇ printResults (showResults duration passes)
+        :Access Public
+        ⎕IO←0
+        :If showResults
+            ⎕←2,1↓⍸bits
+            ⍞←'Passes: ' ⋄ ⍞←passes ⋄ ⍞←', Time: ' ⋄ ⍞←duration
+            ⍞←', Avg: ' ⋄ ⍞←duration÷passes ⋄ ⍞←', Limit: ' ⋄ ⍞←n
+            ⍞←', Count: ' ⋄ ⍞←countPrimes ⋄ ⍞←', Valid: ' ⋄ ⍞←validateResults
+            ⎕←''
+        :EndIf
+        ⍞←'garklein-tradfn;' ⋄ ⍞←passes ⋄ ⍞←';' ⋄ ⍞←duration ⋄ ⍞←';' ⋄ ⍞←'1;'
+        ⍞←'algorithm=base,faithful=yes,bits=1'
+    ∇
+:EndClass
